@@ -97,6 +97,9 @@ is_hostname_resolved() {
 parse_uri() {
     local uri="${1:?uri is missing}"
     local component="${2:?component is missing}"
+    # Environment variable, like ETCD_ADVERTISE_CLIENT_URLS might be list, not single string. For that reason, we have to
+    # choose just first value, separated by comma, to prevent missfunctionality.
+    local first_uri=$(echo $uri | awk -F \, '{print $1}')
 
     # Solution based on https://tools.ietf.org/html/rfc3986#appendix-B with
     # additional sub-expressions to split authority into userinfo, host and port
@@ -138,7 +141,7 @@ parse_uri() {
             return 1
             ;;
     esac
-    [[ "$uri" =~ $URI_REGEX ]] && echo "${BASH_REMATCH[${index}]}"
+    [[ "$first_uri" =~ $URI_REGEX ]] && echo "${BASH_REMATCH[${index}]}"
 }
 
 ########################
